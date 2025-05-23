@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "815563245650",
+    "project_id": "sambook-58156",
+    "storage_bucket": "sambook-58156.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815563245650:android:5cd4ac16bdb033a6b0378b",
+        "android_client_info": {
+          "package_name": "com.example.sambook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "815563245650-g815ecavru55hta5v4io7lackn31irtc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sambook",
+            "certificate_hash": "44fd6c677cb1da85bd3c30bebf5c39062ca0a080"
+          }
+        },
+        {
+          "client_id": "815563245650-otehhn6c5dunnhh2gb9p1ihkbvi01ih1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnpYomtPKnWY5rd_F6d3ZJZyzArA4_kcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "815563245650-otehhn6c5dunnhh2gb9p1ihkbvi01ih1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "815563245650-4gd8jpodg561bb0nif8gd55klrigmpg0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sambook"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

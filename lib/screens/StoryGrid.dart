@@ -1,0 +1,171 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'ChapterListScreen.dart';
+
+class StoryGrid extends StatefulWidget {
+  final String type; // 'truyen' hoặc 'sach'
+  const StoryGrid({super.key, required this.type});
+
+  @override
+  _StoryGridState createState() => _StoryGridState();
+}
+
+class _StoryGridState extends State<StoryGrid> {
+  String selectedCategory = 'Tất cả';
+  final List<String> categories = ['Tất cả', 'Truyện tổng hợp', 'Truyện cười', 'Truyện Việt Nam'];
+
+  Future<List<Map<String, dynamic>>> fetchItems(String category) async {
+    var query = FirebaseFirestore.instance
+        .collection('stories')
+        .where('type', isEqualTo: widget.type);
+
+    if (category != 'Tất cả') {
+      query = query.where('category', isEqualTo: category);
+    }
+
+    final snapshot = await query.get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return {
+        'id': doc.id,
+        'title': data['title'],
+        'author': data['author'],
+        'coverUrl': data['coverUrl'],
+        'rating': (data['rating'] is num) ? (data['rating'] as num).toDouble() : 4.5,
+      };
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Thanh lọc thể loại kiểu cuộn ngang
+// 🔥 Phiên bản lọc thể loại đẹp hơn
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12), // Khoảng cách trên/dưới
+          child: SizedBox(
+            height: 46,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              itemCount: categories.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10), // Khoảng cách giữa các nút
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                final isSelected = category == selectedCategory;
+                return OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedCategory = category;
+                    });
+                  },
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: isSelected ? Colors.blue.shade50 : Colors.white,
+                    side: BorderSide(color: isSelected ? Colors.blue : Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // tăng size nút
+                  ),
+                  child: Text(
+                    category,
+                    style: TextStyle(
+                      color: isSelected ? Colors.pink : Colors.grey.shade800,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+
+        // Danh sách truyện dạng PageView
+        Expanded(
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: fetchItems(selectedCategory),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return const Center(child: Text("❌ Lỗi khi tải dữ liệu"));
+              }
+
+              final items = snapshot.data;
+              if (items == null || items.isEmpty) {
+                return const Center(child: Text("📭 Không có truyện nào"));
+              }
+
+              return PageView.builder(
+                itemCount: items.length,
+                controller: PageController(viewportFraction: 0.85), // để thấy 1 phần của truyện bên cạnh
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChapterListScreen(storyId: item['id']),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 6,
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                              child: Image.network(
+                                item['coverUrl'],
+                                height: 400,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    item['title'],
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  RatingBarIndicator(
+                                    rating: item['rating'],
+                                    itemBuilder: (context, _) =>
+                                    const Icon(Icons.star, color: Colors.amber),
+                                    itemCount: 5,
+                                    itemSize: 24,
+                                    direction: Axis.horizontal,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
