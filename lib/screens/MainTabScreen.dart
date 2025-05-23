@@ -25,6 +25,8 @@ class MainTabScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -34,7 +36,74 @@ class MainTabScreen extends StatelessWidget {
             style: TextStyle(color: Colors.black),
           ),
           backgroundColor: Colors.white,
-          elevation: 4, // Thêm chút bóng đổ để AppBar nổi bật
+          elevation: 4,
+          iconTheme: const IconThemeData(color: Colors.black),
+          actions: [
+            if (user != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: PopupMenuButton<int>(
+                  offset: const Offset(0, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  onSelected: (value) {
+                    if (value == 1) {
+                      _signOut(context);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem<int>(
+                      value: 0,
+                      enabled: false,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: user.photoURL != null
+                                  ? NetworkImage(user.photoURL!)
+                                  : const AssetImage('assets/default_avatar.png') as ImageProvider,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Center(
+                            child: Text(
+                              user.displayName ?? 'Không có tên',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              user.email ?? 'Không có email',
+                              style: const TextStyle(color: Colors.grey, fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem<int>(
+                      value: 1,
+                      child: Row(
+                        children: const [
+                          Icon(Icons.exit_to_app, color: Colors.red),
+                          SizedBox(width: 10),
+                          Text('Đăng xuất'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundImage: user.photoURL != null
+                        ? NetworkImage(user.photoURL!)
+                        : const AssetImage('assets/default_avatar.png') as ImageProvider,
+                  ),
+                ),
+              ),
+          ],
           bottom: const TabBar(
             indicatorColor: Colors.pink,
             labelColor: Colors.pink,
@@ -45,7 +114,6 @@ class MainTabScreen extends StatelessWidget {
               Tab(text: "Sách hay", icon: Icon(Icons.book)),
             ],
           ),
-          iconTheme: const IconThemeData(color: Colors.black),
         ),
         drawer: Drawer(
           child: ListView(
@@ -61,51 +129,38 @@ class MainTabScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.home),
                 title: const Text('Trang chủ'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () => Navigator.pop(context),
               ),
               ListTile(
                 leading: const Icon(Icons.history),
                 title: const Text('Lịch sử'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HistoryScreen()),
-                  );
-                },
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                ),
               ),
               ListTile(
-                leading: Icon(
-                  Icons.admin_panel_settings,
-                  color: Colors.pink[300], // Đổi màu icon Admin nhẹ nhàng hơn
-                ),
+                leading: const Icon(Icons.admin_panel_settings),
                 title: const Text('Trang Admin'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AdminPage()),
-                  );
-                },
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AdminPage()),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.info),
                 title: const Text('Thông tin'),
-                onTap: () {
-                  showAboutDialog(
-                    context: context,
-                    applicationName: 'SamBook',
-                    applicationVersion: '1.0.0',
-                    applicationLegalese: '© 2025 SamBook Team',
-                  );
-                },
+                onTap: () => showAboutDialog(
+                  context: context,
+                  applicationName: 'SamBook',
+                  applicationVersion: '1.0.0',
+                  applicationLegalese: '© 2025 SamBook Team',
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.exit_to_app),
-                title: const Text('Thoát'),
-                onTap: () {
-                  _signOut(context);
-                },
+                title: const Text('Đăng xuất'),
+                onTap: () => _signOut(context),
               ),
             ],
           ),

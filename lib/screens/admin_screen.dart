@@ -32,8 +32,11 @@ class _AdminPageState extends State<AdminPage> {
   void _saveToFirestore() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Lưu thông tin truyện
-        var docRef = await FirebaseFirestore.instance.collection('stories').add({
+        // Chọn collection phù hợp
+        String collectionName = _selectedType == 'sach' ? 'books' : 'stories';
+
+        // Lưu thông tin truyện/sách
+        var docRef = await FirebaseFirestore.instance.collection(collectionName).add({
           'title': _titleController.text,
           'author': _authorController.text,
           'coverUrl': _coverUrlController.text,
@@ -43,7 +46,7 @@ class _AdminPageState extends State<AdminPage> {
           'createdAt': Timestamp.now(),
         });
 
-        // Lưu chương truyện
+        // Lưu chương đầu tiên
         await docRef.collection('chapters').add({
           'title': _chapterTitleController.text.isEmpty ? 'Chương 1' : _chapterTitleController.text,
           'order': 1,
@@ -64,6 +67,9 @@ class _AdminPageState extends State<AdminPage> {
         _chapterContentController.clear();
       } catch (e) {
         print("Lỗi khi lưu dữ liệu vào Firestore: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi: $e')),
+        );
       }
     }
   }

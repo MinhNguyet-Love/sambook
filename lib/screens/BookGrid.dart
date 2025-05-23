@@ -33,21 +33,18 @@ class _BookGridState extends State<BookGrid> {
       final data = doc.data();
       return {
         'id': doc.id,
-        'title': data['title'],
-        'author': data['author'],
-        'coverUrl': data['coverUrl'],
+        'title': data['title'] ?? 'Không có tiêu đề',
+        'author': data['author'] ?? 'Không rõ tác giả',
+        'coverUrl': data['coverUrl'] ?? 'https://via.placeholder.com/150',
         'rating': (data['rating'] is num) ? (data['rating'] as num).toDouble() : 4.0,
       };
     }).toList();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Lọc thể loại (cuộn ngang)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: SizedBox(
@@ -85,8 +82,6 @@ class _BookGridState extends State<BookGrid> {
             ),
           ),
         ),
-
-        // Danh sách sách dạng PageView
         Expanded(
           child: FutureBuilder<List<Map<String, dynamic>>>(
             future: fetchBooks(selectedCategory),
