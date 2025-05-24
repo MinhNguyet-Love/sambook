@@ -4,7 +4,7 @@ class ChapterContentScreen extends StatelessWidget {
   final String title;
   final String content;
 
-  ChapterContentScreen({required this.title, required this.content});
+  const ChapterContentScreen({super.key, required this.title, required this.content});
 
   @override
   Widget build(BuildContext context) {

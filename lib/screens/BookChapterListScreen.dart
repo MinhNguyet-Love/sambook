@@ -6,7 +6,7 @@ import 'ChapterContentScreen.dart';
 class BookChapterListScreen extends StatelessWidget {
   final String bookId;
 
-  BookChapterListScreen({required this.bookId});
+  const BookChapterListScreen({super.key, required this.bookId});
 
   Future<List<Map<String, dynamic>>> fetchChapters() async {
     final snapshot = await FirebaseFirestore.instance
